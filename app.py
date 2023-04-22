@@ -40,24 +40,35 @@ def menu(con):
     questions = [
         inquirer.List('choice',
                       message='Select a Choice',
-                      choices=[('Create cash inflow', 'in'),
-                               ('Create cash outflow', 'out'),
-                               ('View cash inflow', 'inv'),
-                               ('View cash outflow', 'outv')])
+                      choices=[('Create cash flow', 'cf'),
+                               ('View cash flow', 'cfv'),
+                               ('None', 'n')])
     ]
-    match inquirer.prompt(questions)['choice']:
-        case 'in':
-            text = inquirer.text(message='Name of cash inflow')
-            create_cash_flow(con, text)
-        case 'out':
-            text = inquirer.text(message='Name of cash outflow')
-            create_cash_flow(con, text, inflow=False)
-        case 'inv':
-            con.table('CASH_INFLOW').show()
-        case 'outv':
-            con.table('CASH_OUTFLOW').show()
-        case _:
-            pass
+    answer = inquirer.prompt(questions)
+    while answer['choice'] != 'n':
+        match answer['choice']:
+            case 'cf':
+                cf_questions = [inquirer.List('type',
+                                              message='Inflow or Outflow?',
+                                              choices=['Inflow', 'Outflow']),
+                                inquirer.Text(
+                                    'name', message='Name of cash inflow')
+                                ]
+                cf = inquirer.prompt(cf_questions)
+
+                create_cash_flow(
+                    con, cf['name'],
+                    inflow=True if cf['type'] == 'Inflow' else False)
+
+            case 'cfv':
+                cf = inquirer.list_input('Inflow or Outflow?',
+                                         choices=[('Inflow', 'CASH_INFLOW'),
+                                                  ('Outflow', 'CASH_OUTFLOW')])
+                con.table(cf).show()
+
+            case _:
+                pass
+        answer = inquirer.prompt(questions)
 
 
 if __name__ == '__main__':
