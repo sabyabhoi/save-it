@@ -17,9 +17,10 @@ def get_db(filename):
     con.sql('CREATE SEQUENCE IF NOT EXISTS seq_outflowid START 1')
 
     con.sql('''CREATE TABLE IF NOT EXISTS DAILY_INFLOW(
-    ENTRY_DATE DATE PRIMARY KEY,
+    ENTRY_DATE DATE,
     INFLOW INTEGER,
     AMOUNT DOUBLE DEFAULT 0.0,
+    PRIMARY KEY(ENTRY_DATE, INFLOW),
     FOREIGN KEY (INFLOW) REFERENCES CASH_INFLOW(IID)
     )''')
 
@@ -46,3 +47,17 @@ def create_cash_flow(con, name, inflow=True):
                     [seq_name, name])
 
     con.table(table_name).show()
+
+
+def get_all_cash_flows(con, inflow=True):
+    table_name = 'CASH_INFLOW' if inflow else 'CASH_OUTFLOW'
+
+    return con.sql("SELECT * FROM " + table_name).fetchall()
+
+
+def get_daily_cash_flows(con, inflow=True):
+    query = '''SELECT ENTRY_DATE, CATEGORY, AMOUNT
+    FROM DAILY_{0}, CASH_{0}
+    WHERE {0}={1}
+    '''.format('INFLOW' if inflow else 'OUTFLOW', 'IID' if inflow else 'OID')
+    return con.sql(query)
