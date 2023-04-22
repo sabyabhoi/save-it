@@ -1,4 +1,5 @@
 import duckdb
+import inquirer
 
 
 def get_db(filename):
@@ -36,18 +37,27 @@ def create_cash_flow(con, name, inflow=True):
 
 
 def menu(con):
-    print('Enter option:')
-    print('1. Create cash inflow')
-    print('2. Create cash outflow')
-    chosen = int(input().strip())
-    if chosen == 1:
-        print('Enter inflow name: ', end='')
-        name = input().strip()
-        create_cash_flow(con, name, inflow=True)
-    elif chosen == 2:
-        print('Enter outflow name: ', end='')
-        name = input().strip()
-        create_cash_flow(con, name, inflow=False)
+    questions = [
+        inquirer.List('choice',
+                      message='Select a Choice',
+                      choices=[('Create cash inflow', 'in'),
+                               ('Create cash outflow', 'out'),
+                               ('View cash inflow', 'inv'),
+                               ('View cash outflow', 'outv')])
+    ]
+    match inquirer.prompt(questions)['choice']:
+        case 'in':
+            text = inquirer.text(message='Name of cash inflow')
+            create_cash_flow(con, text)
+        case 'out':
+            text = inquirer.text(message='Name of cash outflow')
+            create_cash_flow(con, text, inflow=False)
+        case 'inv':
+            con.table('CASH_INFLOW').show()
+        case 'outv':
+            con.table('CASH_OUTFLOW').show()
+        case _:
+            pass
 
 
 if __name__ == '__main__':
