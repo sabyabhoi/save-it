@@ -1,22 +1,12 @@
 from fpdf import FPDF, XPos, YPos
 import db
 
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font('Helvetica', 'B', 16)
-pdf.cell(0,
-         10,
-         'Weekly Budget Report',
-         align='C',
-         new_x=XPos.LMARGIN,
-         new_y=YPos.NEXT)
 
-
-def new_line():
+def new_line(pdf):
     return pdf.cell(0, 10, '', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
 
-def df_to_table(df, caption=''):
+def df_to_table(pdf, df, caption=''):
     pdf.set_font('Helvetica', 'B', 12)
     pdf.cell(0, 10, caption, align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font('Helvetica', '', 12)
@@ -33,16 +23,23 @@ def df_to_table(df, caption=''):
                     row.cell(str(df.iloc[i, r]), align='R')
 
 
-new_line()
-pdf.set_font('Helvetica', '', 10)
-con = db.get_db('file.db')
+def generate_report(con, filename):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Helvetica', 'B', 16)
+    pdf.cell(0,
+             10,
+             'Weekly Budget Report',
+             align='C',
+             new_x=XPos.LMARGIN,
+             new_y=YPos.NEXT)
+    new_line(pdf)
+    pdf.set_font('Helvetica', '', 10)
 
-df = db.get_weekly_cash_flows(con).fetchdf()
-df_to_table(df, 'Cash Inflow')
+    df = db.get_weekly_cash_flows(con).fetchdf()
+    df_to_table(pdf, df, 'Cash Inflow')
 
-df = db.get_weekly_cash_flows(con, inflow=False).fetchdf()
-df_to_table(df, 'Cash Outflow')
+    df = db.get_weekly_cash_flows(con, inflow=False).fetchdf()
+    df_to_table(pdf, df, 'Cash Outflow')
 
-con.close()
-
-pdf.output('output.pdf')
+    pdf.output(filename)

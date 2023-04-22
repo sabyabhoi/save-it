@@ -1,6 +1,7 @@
 import inquirer
 import db
 import utils
+import report
 
 
 def prompt_cash_flow(con):
@@ -81,6 +82,7 @@ def menu(con):
                                ('View daily entry', 'dailyview'),
                                ('Create cash flow', 'cf'),
                                ('View cash flow', 'cfv'),
+                               ('Generate Report', 'gen'),
                                ('None', 'n')])
     ]
     answer = inquirer.prompt(questions)
@@ -98,6 +100,8 @@ def menu(con):
                                                   ('Outflow', 'CASH_OUTFLOW')])
                 con.table(cf).show()
 
+            case 'gen':
+                report.generate_report(con, 'weekly.pdf')
             case _:
                 pass
         answer = inquirer.prompt(questions)
