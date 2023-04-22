@@ -54,6 +54,25 @@ def prompt_daily_entry(con):
                         [date, key, float(val.strip())])
 
 
+def get_daily_view(con):
+    date = inquirer.text(
+        'Enter the date', default=datetime.date.today().strftime('%Y-%m-%d'))
+
+    cf = inquirer.list_input('Inflow or Outflow?',
+                             choices=['Inflow',
+                                      'Outflow'])
+    if (cf == 'Inflow'):
+        print('Daily inflows:')
+        db.get_daily_cash_flows(con, date).show()
+        con.sql('''SELECT SUM(AMOUNT) AS GROSS_INFLOW
+        FROM DAILY_INFLOW WHERE ENTRY_DATE=''' + date).show()
+    else:
+        print('Daily outflows:')
+        db.get_daily_cash_flows(con, date, inflow=False).show()
+        con.sql('''SELECT SUM(AMOUNT) AS GROSS_OUTFLOW
+        FROM DAILY_OUTFLOW WHERE ENTRY_DATE=''' + date).show()
+
+
 def menu(con):
     questions = [
         inquirer.List('choice',
@@ -70,10 +89,7 @@ def menu(con):
             case 'daily':
                 prompt_daily_entry(con)
             case 'dailyview':
-                print('Daily inflows:')
-                db.get_daily_cash_flows(con).show()
-                print('Daily outflows:')
-                db.get_daily_cash_flows(con, inflow=False).show()
+                get_daily_view(con)
             case 'cf':
                 prompt_cash_flow(con)
             case 'cfv':

@@ -55,9 +55,10 @@ def get_all_cash_flows(con, inflow=True):
     return con.sql("SELECT * FROM " + table_name).fetchall()
 
 
-def get_daily_cash_flows(con, inflow=True):
+def get_daily_cash_flows(con, date, inflow=True):
     query = '''SELECT ENTRY_DATE, CATEGORY, AMOUNT
     FROM DAILY_{0}, CASH_{0}
-    WHERE {0}={1}
-    '''.format('INFLOW' if inflow else 'OUTFLOW', 'IID' if inflow else 'OID')
+    WHERE {0}={1} AND ENTRY_DATE={2}
+    '''.format('INFLOW' if inflow else 'OUTFLOW', 'IID' if inflow else 'OID',
+               date)
     return con.sql(query)
