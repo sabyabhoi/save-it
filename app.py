@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import menu
 import db
 
@@ -5,8 +6,8 @@ if __name__ == '__main__':
     con = db.get_db('file.db')
     try:
         menu.menu(con)
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
     con.commit()
     con.close()

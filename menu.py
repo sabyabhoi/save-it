@@ -1,6 +1,6 @@
 import inquirer
 import db
-import datetime
+import utils
 
 
 def prompt_cash_flow(con):
@@ -19,7 +19,7 @@ def prompt_cash_flow(con):
 
 def prompt_daily_entry(con):
     date = inquirer.text(
-        'Enter the date', default=datetime.date.today().strftime('%Y-%m-%d'))
+        'Enter the date', default=utils.get_today_formatted())
 
     # Inflows
     print('Inflows:')
@@ -56,7 +56,7 @@ def prompt_daily_entry(con):
 
 def get_daily_view(con):
     date = inquirer.text(
-        'Enter the date', default=datetime.date.today().strftime('%Y-%m-%d'))
+        'Enter the date', default=utils.get_today_formatted())
 
     cf = inquirer.list_input('Inflow or Outflow?',
                              choices=['Inflow',
@@ -65,12 +65,12 @@ def get_daily_view(con):
         print('Daily inflows:')
         db.get_daily_cash_flows(con, date).show()
         con.sql('''SELECT SUM(AMOUNT) AS GROSS_INFLOW
-        FROM DAILY_INFLOW WHERE ENTRY_DATE=''' + date).show()
+        FROM DAILY_INFLOW WHERE ENTRY_DATE=\'{}\''''.format(date)).show()
     else:
         print('Daily outflows:')
         db.get_daily_cash_flows(con, date, inflow=False).show()
         con.sql('''SELECT SUM(AMOUNT) AS GROSS_OUTFLOW
-        FROM DAILY_OUTFLOW WHERE ENTRY_DATE=''' + date).show()
+        FROM DAILY_OUTFLOW WHERE ENTRY_DATE=\'{}\''''.format(date)).show()
 
 
 def menu(con):

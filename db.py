@@ -1,4 +1,5 @@
 import duckdb
+import utils
 
 
 def get_db(filename):
@@ -58,7 +59,21 @@ def get_all_cash_flows(con, inflow=True):
 def get_daily_cash_flows(con, date, inflow=True):
     query = '''SELECT ENTRY_DATE, CATEGORY, AMOUNT
     FROM DAILY_{0}, CASH_{0}
-    WHERE {0}={1} AND ENTRY_DATE={2}
+    WHERE {0}={1} AND ENTRY_DATE=\'{2}\'
     '''.format('INFLOW' if inflow else 'OUTFLOW', 'IID' if inflow else 'OID',
                date)
+    return con.sql(query)
+
+
+def get_weekly_cash_flows(con, inflow=True):
+    query = '''SELECT CATEGORY, SUM(AMOUNT) AS AMOUNT
+    FROM DAILY_{0}, CASH_{0}
+    WHERE {0}={1} AND ENTRY_DATE BETWEEN '{2}' AND '{3}'
+    GROUP BY CATEGORY
+    '''.format(
+        'INFLOW' if inflow else 'OUTFLOW',
+        'IID' if inflow else 'OID',
+        utils.get_today_formatted(7),
+        utils.get_today_formatted(),
+    )
     return con.sql(query)
