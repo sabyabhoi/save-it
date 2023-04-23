@@ -7,10 +7,9 @@ def new_line(pdf):
 
 
 def df_to_table(pdf, df, caption=''):
-    pdf.set_font('Helvetica', 'B', 12)
-    pdf.cell(0, 10, caption, align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font('Helvetica', '', 12)
-    with pdf.table(width=100) as table:
+    pdf.cell(0, 10, caption, align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    with pdf.table(width=80) as table:
         row = table.row()
         for col in df.columns:
             row.cell(col, align='C')
@@ -25,8 +24,8 @@ def df_to_table(pdf, df, caption=''):
 
 def generate_report(con, filename):
     pdf = FPDF()
-    pdf.add_page()
     pdf.set_font('Helvetica', 'B', 16)
+    pdf.add_page()
     pdf.cell(0,
              10,
              'Weekly Budget Report',
